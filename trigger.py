@@ -59,12 +59,15 @@ def get_past_weather(logger=None, dummy=False):
         log.save()
     return out
 
+def get_hi_temp(data):
+    return extract_tag(data, ['TemperatureSummary', 'Past24HourRange', 'Maximum'])
+
 def get_precipitation(data):
     return extract_tag(data, ['PrecipitationSummary', 'Past24Hours'])
 
-def get_watering_time(rainfall_mm):
+def get_watering_time(rainfall_mm, hi_temp):
     time = 0
-    shortfall = BASETIME - BASETIME / 5 * rainfall_mm
+    shortfall = BASETIME - BASETIME / 5 * rainfall_mm + max(hi_temp - 24, 0) * INC_TIME_PER_DEGREE
     if shortfall > 0:
         time = int(shortfall)
     return time
@@ -79,10 +82,11 @@ print('creating logger')
 logger = create_timed_rotating_log('weather_hist/accuweather.json')
 print('getting weather data')
 data = get_past_weather(logger)
-print('getting precipitation')
+print('getting precipitation and high temperature')
 rainfall = get_precipitation(data)
+hi_temp = get_hi_temp(data)
 print('rainfall (mm): {}'.format(rainfall))
-time = get_watering_time(rainfall)
+time = get_watering_time(rainfall, hi_temp)
 print('water time (s): {}'.format(time))
 start_water(time)
 print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
