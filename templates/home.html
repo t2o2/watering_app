@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <title>Home Watering Control</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src={{url_for('static',filename='jquery-2.1.1.js')}}></script>
+    
+    <script>
+        function onWatering(x) {
+            if (x.id === 'start') {
+                $.get( "/start");
+            }
+            if (x.id === 'stop') {
+                $.get( "/stop");
+            }
+        }
+
+        var source = new EventSource('/stream');
+        source.onmessage = function (event) {
+            $("#status_id").html(event.data)
+        };
+    </script>
+    <style>
+        button {
+           /*
+            border: 2px solid yellow;
+            color: white;
+            background-color: black;
+            font-size: 30px;
+            */
+            height: 400px;
+            width: 40%;
+        }
+        
+        button:hover {
+            /*
+            border: 2px solid yellow;
+            color: yellow;
+            background-color: black;
+            */
+            font-size: 30px;
+            height: 400px;
+            width: 40%;;
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-primary" onclick="onWatering(this)" id="start">Start Watering</button>
+    <button class="btn btn-primary" onclick="onWatering(this)" id="stop">Stop Watering</button>
+    <div><b>Status:</b><a id="status_id">{{status}}</a></div>
+</body>
+</html>
